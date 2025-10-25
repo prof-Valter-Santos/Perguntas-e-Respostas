@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,16 +9,13 @@
         body {
             box-sizing: border-box;
         }
-
         .card-zoom {
             transform: scale(1.05);
             z-index: 50;
         }
-
         .overlay {
             backdrop-filter: blur(4px);
         }
-
         .result-animation {
             position: fixed;
             top: 50%;
@@ -32,67 +27,135 @@
             animation: resultPop 2s ease-out forwards;
             pointer-events: none;
         }
-
         .correct {
             color: #10b981;
             text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
         }
-
         .incorrect {
             color: #ef4444;
             text-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
         }
-
         @keyframes resultPop {
             0% {
                 transform: translate(-50%, -50%) scale(0) rotate(0deg);
                 opacity: 0;
             }
-
             20% {
                 transform: translate(-50%, -50%) scale(1.2) rotate(10deg);
                 opacity: 1;
             }
-
             40% {
                 transform: translate(-50%, -50%) scale(0.9) rotate(-5deg);
                 opacity: 1;
             }
-
             60% {
                 transform: translate(-50%, -50%) scale(1.1) rotate(3deg);
                 opacity: 1;
             }
-
             80% {
                 transform: translate(-50%, -50%) scale(1) rotate(0deg);
                 opacity: 1;
             }
-
             100% {
                 transform: translate(-50%, -50%) scale(0.8) rotate(0deg);
                 opacity: 0;
             }
         }
+        .timer-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+        }
+        .timer-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: conic-gradient(#10b981 0deg, #e5e7eb 0deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #374151;
+            transition: background 0.1s ease;
+        }
+        .timer-urgent {
+            background: conic-gradient(#ef4444 0deg, #e5e7eb 0deg) !important;
+            color: #ef4444 !important;
+            animation: pulse 0.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .timer-option.active {
+            background-color: #3b82f6 !important;
+            color: white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .countdown-number {
+            font-size: 8rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+            animation: countdownPulse 1s ease-in-out;
+        }
+        @keyframes countdownPulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
     </style>
 </head>
-
 <body class="bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-800 min-h-screen">
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-4">🎯 Quiz Interativo</h1>
-            <p class="text-xl text-purple-100">Clique nos cards para responder e pontuar!</p>
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8 flex items-center justify-between">
+            <div class="flex-1">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">🎯 Quiz Interativo</h1>
+                <p class="text-xl text-gray-600">Clique nos cards para responder e pontuar!</p>
+            </div>
+            <div class="flex items-center gap-4 ml-8">
+                <!-- SESI Logo -->
+                <img src="https://tramitacao.sesisenaisp.org.br/media/logos/sesi-senai.png" height="300" width="300" alt="SESI SENAI" onerror="this.src=''; this.alt='Logo SESI SENAI não disponível'; this.style.display='none';">
+            </div>
         </div>
 
         <!-- Game Controls -->
-        <div class="flex justify-center gap-4 mb-8">
-            <button id="finishGame"
-                class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
-                🏁 Classificação
+        <div class="flex justify-center items-center gap-4 mb-8">
+            <!-- Timer Settings Button -->
+            <button id="timerSettingsBtn" class="bg-blue-500 hover:bg-blue-600 text-white p-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200" title="Configurar Tempo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+                    <polyline points="12,6 12,12 16,14" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
             </button>
-            <button id="resetGame"
-                class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+
+            <!-- Questions Manager Button -->
+            <button id="questionsManagerBtn" class="bg-purple-500 hover:bg-purple-600 text-white p-3 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-200" title="Gerenciar Perguntas">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" stroke-width="2" fill="none"/>
+                </svg>
+            </button>
+            
+            <button id="finishGame" class="bg-red-500 hover:bg-red-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
+                🏁 Finalizar Jogo
+            </button>
+            <button id="resetGame" class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-lg font-semibold text-lg shadow-lg transform hover:scale-105 transition-all duration-200">
                 🔄 Resetar Quiz
             </button>
         </div>
@@ -103,73 +166,206 @@
         </div>
 
         <!-- Ranking Modal -->
-        <div id="rankingModal"
-            class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
+        <div id="rankingModal" class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-8 max-w-2xl w-full mx-4 max-h-96 overflow-y-auto">
                 <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">🏆 Classificação Final</h2>
                 <div id="rankingList" class="space-y-3">
                     <!-- Ranking will be displayed here -->
                 </div>
-                <button id="closeRanking"
-                    class="w-full mt-6 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold">
-                    Fechar
-                </button>
+                <div class="flex gap-3 mt-6">
+                    <button id="saveRanking" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2" title="Salvar Ranking em JSON">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 2C4.89 2 4 2.89 4 4V20C4 21.11 4.89 22 6 22H18C19.11 22 20 21.11 20 20V8L14 2H6ZM6 4H13V9H18V20H6V4ZM8 12V14H16V12H8ZM8 16V18H13V16H8Z"/>
+                        </svg>
+                        Salvar JSON
+                    </button>
+                    <button id="loadRanking" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2" title="Carregar e Acumular Ranking">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M5 16L3 14L5 12V13H12V15H5V16ZM14 8V7L16 9L14 11V10H7V8H14ZM21 4V8L19 6H17V4H21ZM21 16V20H17V18H19L21 16ZM9 2V6H7V4H3V2H9ZM15 18V22H11V20H13V18H15Z"/>
+                        </svg>
+                        Carregar JSON
+                    </button>
+                    <button id="closeRanking" class="bg-blue-500 hover:bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold">
+                        Fechar
+                    </button>
+                </div>
+                
+                <!-- Hidden file input for loading JSON -->
+                <input type="file" id="jsonFileInput" accept=".json" style="display: none;">
             </div>
         </div>
 
         <!-- Reset Password Modal -->
-        <div id="resetModal"
-            class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
+        <div id="resetModal" class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
                 <h3 class="text-2xl font-bold mb-4 text-gray-800 text-center">🔒 Confirmar Reset</h3>
                 <p class="text-gray-600 mb-4 text-center">Digite a senha para resetar o quiz:</p>
-                <input type="password" id="resetPassword"
-                    class="w-full p-3 border-2 border-gray-300 rounded-lg mb-4 text-lg text-center"
-                    placeholder="Digite a senha">
+                <input type="password" id="resetPassword" class="w-full p-3 border-2 border-gray-300 rounded-lg mb-4 text-lg text-center" placeholder="Digite a senha">
                 <div class="flex gap-3">
-                    <button id="confirmReset"
-                        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold">
+                    <button id="confirmReset" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold">
                         Confirmar Reset
                     </button>
-                    <button id="cancelReset"
-                        class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold">
+                    <button id="cancelReset" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold">
                         Cancelar
                     </button>
                 </div>
             </div>
         </div>
 
+        <!-- Timer Settings Modal -->
+        <div id="timerSettingsModal" class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800 text-center">⏱️ Configurar Tempo</h3>
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <p class="text-gray-600">Escolha o tempo para cada pergunta:</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button class="timer-option bg-blue-100 hover:bg-blue-200 p-4 rounded-lg text-center transition-all" data-time="5">
+                            <div class="text-2xl mb-2">⚡</div>
+                            <div class="font-semibold">5 segundos</div>
+                            <div class="text-sm text-gray-600">Modo Rápido</div>
+                        </button>
+                        <button class="timer-option bg-green-100 hover:bg-green-200 p-4 rounded-lg text-center transition-all active" data-time="10">
+                            <div class="text-2xl mb-2">⏰</div>
+                            <div class="font-semibold">10 segundos</div>
+                            <div class="text-sm text-gray-600">Padrão</div>
+                        </button>
+                        <button class="timer-option bg-yellow-100 hover:bg-yellow-200 p-4 rounded-lg text-center transition-all" data-time="15">
+                            <div class="text-2xl mb-2">🕐</div>
+                            <div class="font-semibold">15 segundos</div>
+                            <div class="text-sm text-gray-600">Moderado</div>
+                        </button>
+                        <button class="timer-option bg-orange-100 hover:bg-orange-200 p-4 rounded-lg text-center transition-all" data-time="20">
+                            <div class="text-2xl mb-2">🐌</div>
+                            <div class="font-semibold">20 segundos</div>
+                            <div class="text-sm text-gray-600">Relaxado</div>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex gap-3 mt-6">
+                    <button id="saveTimerSettings" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg font-semibold">
+                        Salvar
+                    </button>
+                    <button id="cancelTimerSettings" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg font-semibold">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Manager Modal -->
+        <div id="questionsManagerModal" class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
+            <div class="bg-white rounded-2xl p-8 max-w-5xl w-full mx-4 max-h-126 overflow-y-auto">
+                <h3 class="text-2xl font-bold mb-6 text-gray-800 text-center">📝 Gerenciar Perguntas</h3>
+                
+                <div class="space-y-4">
+                    <div class="text-center mb-4">
+                        <p class="text-gray-600 mb-2">Cole suas perguntas nos formatos:</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-blue-50 p-3 rounded-lg">
+                                <p class="text-sm font-semibold text-blue-800 mb-2">🎯 Verdadeiro/Falso:</p>
+                                <p class="text-xs text-blue-700 bg-white p-2 rounded font-mono">
+                                    Pergunta 1? true<br>
+                                    Pergunta 2? false<br>
+                                    Pergunta 3? true
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-3 rounded-lg">
+                                <p class="text-sm font-semibold text-green-800 mb-2">📋 Múltipla Escolha:</p>
+                                <p class="text-xs text-green-700 bg-white p-2 rounded font-mono">
+                                    Qual é a capital do Brasil?<br>
+                                    A) São Paulo<br>
+                                    B) Rio de Janeiro<br>
+                                    C) Brasília<br>
+                                    Resposta: C
+                                </p>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-3">
+                            ✨ <strong>Você pode misturar os dois tipos no mesmo campo!</strong><br>
+                            • Para V/F: termine com "true" ou "false"<br>
+                            • Para múltipla escolha: use "Resposta: X" onde X é a letra correta<br>
+                            • Deixe uma linha em branco entre perguntas de múltipla escolha
+                        </p>
+                    </div>
+                    <textarea 
+                        id="questionsTextarea" 
+                        class="w-full h-64 p-4 border-2 border-gray-300 rounded-lg text-sm font-mono resize-none focus:border-purple-500 focus:outline-none" 
+                        placeholder="Cole suas perguntas aqui...&#10;&#10;Exemplo misturado:&#10;PHP é uma linguagem de programação? true&#10;JavaScript é igual a Java? false&#10;&#10;Qual linguagem é usada para estilizar páginas web?&#10;A) JavaScript&#10;B) CSS&#10;C) PHP&#10;D) Python&#10;Resposta: B&#10;&#10;HTML significa HyperText Markup Language? true"
+                    ></textarea>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                        <span><span id="totalQuestionCount">0</span> perguntas detectadas</span>
+                        <span class="text-blue-600">🎯 <span id="classicCount">0</span> V/F</span>
+                        <span class="text-green-600">📋 <span id="multipleCount">0</span> Múltipla</span>
+                        <span id="questionStatus" class="ml-4"></span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button id="loadDefaultQuestions" class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold">
+                        🔄 Carregar Padrão PHP
+                    </button>
+                    <button id="clearQuestions" class="bg-red-500 hover:bg-red-600 text-white py-3 px-4 rounded-lg font-semibold">
+                        🗑️ Limpar
+                    </button>
+                    <button id="saveQuestions" class="flex-1 bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-lg font-semibold">
+                        💾 Salvar Perguntas
+                    </button>
+                    <button id="cancelQuestionsManager" class="bg-gray-500 hover:bg-gray-600 text-white py-3 px-4 rounded-lg font-semibold">
+                        Cancelar
+                    </button>
+                </div>
+            </div>
+        </div>
+            </div>
+        </div>
+
         <!-- Quiz Modal -->
-        <div id="quizModal"
-            class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
+        <div id="quizModal" class="fixed inset-0 bg-black bg-opacity-50 overlay hidden items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-8 max-w-lg w-full mx-4">
                 <div id="playerSelection" class="block">
                     <h3 class="text-2xl font-bold mb-4 text-gray-800">Escolha o Jogador</h3>
                     <select id="playerSelect" class="w-full p-3 border-2 border-gray-300 rounded-lg mb-4 text-lg">
                         <option value="">Selecione um jogador...</option>
                     </select>
-                    <button id="registerPlayer"
-                        class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg">
+                    <button id="registerPlayer" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg">
                         Registrar
                     </button>
                 </div>
 
                 <div id="questionSection" class="hidden">
+                    <!-- Timer Display -->
+                    <div class="timer-container">
+                        <div id="timerCircle" class="timer-circle">
+                            <span id="timerText">10</span>
+                        </div>
+                    </div>
+                    <div class="text-center mb-4">
+                        <div id="pointsDisplay" class="text-lg font-semibold text-blue-600">
+                            Pontos possíveis: <span id="currentPoints">100</span>
+                        </div>
+                    </div>
+                    
                     <h3 class="text-xl font-bold mb-4 text-gray-800" id="questionText"></h3>
-                    <div class="space-y-3 mb-6">
-                        <button id="trueBtn"
-                            class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg">
+                    
+                    <!-- True/False Buttons (Classic Mode) -->
+                    <div id="trueFalseButtons" class="space-y-3 mb-6">
+                        <button id="trueBtn" class="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-lg font-semibold text-lg">
                             ✓ Verdadeiro
                         </button>
-                        <button id="falseBtn"
-                            class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold text-lg">
+                        <button id="falseBtn" class="w-full bg-red-500 hover:bg-red-600 text-white py-3 rounded-lg font-semibold text-lg">
                             ✗ Falso
                         </button>
                     </div>
+
+                    <!-- Multiple Choice Buttons -->
+                    <div id="multipleChoiceButtons" class="space-y-3 mb-6 hidden">
+                        <!-- Buttons will be generated dynamically -->
+                    </div>
                 </div>
 
-                <button id="closeModal"
-                    class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-semibold">
+                <button id="closeModal" class="w-full bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg font-semibold">
                     Fechar
                 </button>
             </div>
@@ -179,37 +375,47 @@
     <script>
         // Players list
         const players = [
-            "Enzo de Castro Santos", "Gustavo Casagrande Castilho", "Gustavo de Castro Oliveira",
-            "Isabela Cisotto Bete", "José Arthur de Camargo", "Julia Sousa Menezes",
-            "Kauã Serafim Cinto", "Lucas Augusto Scatolin Faria",
-            "Maria Eduarda Gomes de Oliveira", "Mateus Felipe Caldana", "Matheus Eduardo Costa de Andrade", "Matheus Henrique Rozante", "Miguel Silva Caetano",
-            "Octavio Tamaoki Ferreira Vaz", "Rafaela Jordana Souza Barros", "Raphael Valeiro de Almeida", "Renan de Oliveira Moretti",
-            "Stella da Mota Xavier", "Vinícius Oliveira Pineda"
+
+            "Alicya Ressatti Rocha", "Ana Julya Rossini", "Beatriz Fernandes Fidelis", 
+            "Eduardo Mairena de Oliveira", "Enzo de Castro Santos", "Gabriel de Sousa Rodrigues", 
+            "Gabriela Pedroso Ribeiro", "Gustavo Casagrande Castilho", "Gustavo de Castro Oliveira", 
+            "Iggor Cruz Silva", "Isabela Cisotto Bete", "João Victor Tabatini Pereira", 
+            "José Arthur de Camargo", "Julia Sousa Menezes", "Kauã Serafim Cinto", 
+            "Lucas Augusto Scatolin Faria", "Maria Eduarda Gomes de Oliveira", "Mateus Felipe Caldana", 
+            "Matheus Eduardo Costa de Andrade", "Matheus Henrique Rozante", "Maycon dos Santos Tavares", 
+            "Miguel Silva Caetano", "Octavio Tamaoki Ferreira Vaz", "Otavio Bellucci", 
+            "Rafaela Jordana Souza Barros", "Raphael Valeiro de Almeida", "Renan de Oliveira Moretti", 
+            "Stella Da Mota Xavier", "Vinicius Antonio Ferrari Calegare", "Vinícius Oliveira Pineda", 
+            "Vinícius Rodrigues Silveira"
+
         ];
 
-        // Quiz questions
-        const questions = [
-            { question: "PHP é uma linguagem de programação interpretada voltada principalmente para o desenvolvimento web.", answer: true, points: 100 },
-            { question: "A tag correta para abrir um código PHP é <?php e fechar com ?>.", answer: true, points: 100 },
-            { question: "No PHP, todas as variáveis devem começar com o símbolo $.", answer: true, points: 100 },
-            { question: "A função echo e a função print no PHP têm exatamente o mesmo comportamento e desempenho.", answer: false, points: 100 },
-            { question: "O PHP é uma linguagem fortemente tipada, ou seja, sempre exige declaração do tipo da variável.", answer: false, points: 100 },
-            { question: "Arrays em PHP podem armazenar diferentes tipos de dados ao mesmo tempo.", answer: true, points: 100 },
-            { question: "A função count() em PHP é usada para contar os elementos de um array.", answer: true, points: 100 },
-            { question: "O superglobal $_POST é usado para capturar dados enviados pelo método GET.", answer: false, points: 100 },
-            { question: "O superglobal $_GET é usado para capturar dados enviados pela URL.", answer: true, points: 100 },
-            { question: "O PDO no PHP é usado para manipular arquivos do sistema.", answer: false, points: 100 },
-            { question: "PDO significa PHP Data Objects.", answer: true, points: 100 },
-            { question: "Para iniciar uma sessão em PHP usamos session_start().", answer: true, points: 100 },
-            { question: "A diferença entre include e require é que o require gera erro fatal se o arquivo não for encontrado.", answer: true, points: 100 },
-            { question: "O comando header('Location: ...') é usado para redirecionar páginas em PHP.", answer: true, points: 100 },
-            { question: "A função password_hash() é recomendada para criptografar senhas em PHP.", answer: true, points: 100 },
-            { question: "O PHP não possui suporte a tratamento de exceções com try e catch.", answer: false, points: 100 },
-            { question: "O operador === no PHP compara valores e tipos.", answer: true, points: 100 },
-            { question: "A superglobal $_SESSION pode ser usada para armazenar informações do usuário enquanto ele navega.", answer: true, points: 100 },
-            { question: "É possível utilizar PHP embutido dentro de arquivos HTML.", answer: true, points: 100 },
-            { question: "O PHP 7 introduziu suporte a tipagem escalar (type hints).", answer: true, points: 100 }
+        // Default PHP questions
+        const defaultQuestions = [
+            { question: "PHP é uma linguagem de programação interpretada voltada principalmente para o desenvolvimento web.", answer: true, points: 100, type: 'classic' },
+            { question: "A tag correta para abrir um código PHP é <?php e fechar com ?>.", answer: true, points: 100, type: 'classic' },
+            { question: "No PHP, todas as variáveis devem começar com o símbolo $.", answer: true, points: 100, type: 'classic' },
+            { question: "A função echo e a função print no PHP têm exatamente o mesmo comportamento e desempenho.", answer: false, points: 100, type: 'classic' },
+            { question: "O PHP é uma linguagem fortemente tipada, ou seja, sempre exige declaração do tipo da variável.", answer: false, points: 100, type: 'classic' },
+            { question: "Arrays em PHP podem armazenar diferentes tipos de dados ao mesmo tempo.", answer: true, points: 100, type: 'classic' },
+            { question: "A função count() em PHP é usada para contar os elementos de um array.", answer: true, points: 100, type: 'classic' },
+            { question: "O superglobal $_POST é usado para capturar dados enviados pelo método GET.", answer: false, points: 100, type: 'classic' },
+            { question: "O superglobal $_GET é usado para capturar dados enviados pela URL.", answer: true, points: 100, type: 'classic' },
+            { question: "O PDO no PHP é usado para manipular arquivos do sistema.", answer: false, points: 100, type: 'classic' },
+            { question: "PDO significa PHP Data Objects.", answer: true, points: 100, type: 'classic' },
+            { question: "Para iniciar uma sessão em PHP usamos session_start().", answer: true, points: 100, type: 'classic' },
+            { question: "A diferença entre include e require é que o require gera erro fatal se o arquivo não for encontrado.", answer: true, points: 100, type: 'classic' },
+            { question: "O comando header('Location: ...') é usado para redirecionar páginas em PHP.", answer: true, points: 100, type: 'classic' },
+            { question: "A função password_hash() é recomendada para criptografar senhas em PHP.", answer: true, points: 100, type: 'classic' },
+            { question: "O PHP não possui suporte a tratamento de exceções com try e catch.", answer: false, points: 100, type: 'classic' },
+            { question: "O operador === no PHP compara valores e tipos.", answer: true, points: 100, type: 'classic' },
+            { question: "A superglobal $_SESSION pode ser usada para armazenar informações do usuário enquanto ele navega.", answer: true, points: 100, type: 'classic' },
+            { question: "É possível utilizar PHP embutido dentro de arquivos HTML.", answer: true, points: 100, type: 'classic' },
+            { question: "O PHP 7 introduziu suporte a tipagem escalar (type hints).", answer: true, points: 100, type: 'classic' }
         ];
+
+        // Current questions (can be modified)
+        let questions = [...defaultQuestions];
 
         // Game state
         let playerScores = {};
@@ -217,6 +423,13 @@
         let selectedPlayer = '';
         let usedQuestions = new Set();
         let questionAnswers = {}; // Store who answered each question and if correct
+        
+        // Timer variables
+        let timerInterval = null;
+        let timeLeft = 10;
+        let questionStartTime = null;
+        let maxTime = 10; // Configurable timer duration
+        let timeExpired = false;
 
         // Initialize player scores
         players.forEach(player => {
@@ -231,6 +444,256 @@
         const playerSelection = document.getElementById('playerSelection');
         const questionSection = document.getElementById('questionSection');
         const questionText = document.getElementById('questionText');
+
+        // Timer functions
+        function startTimer() {
+            timeLeft = maxTime;
+            timeExpired = false;
+            questionStartTime = Date.now();
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleTimeUp();
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateTimerDisplay() {
+            const timerText = document.getElementById('timerText');
+            const timerCircle = document.getElementById('timerCircle');
+            const currentPoints = document.getElementById('currentPoints');
+            
+            if (timerText) timerText.textContent = timeExpired ? '0' : timeLeft;
+            
+            // Calculate points based on time left (30-100 points)
+            const points = timeExpired ? 30 : Math.max(30, Math.round(30 + (timeLeft / maxTime) * 70));
+            if (currentPoints) currentPoints.textContent = points;
+            
+            // Update circle color based on time
+            const percentage = timeExpired ? 0 : (timeLeft / maxTime) * 360;
+            if (timerCircle) {
+                if (timeLeft <= 3 || timeExpired) {
+                    timerCircle.classList.add('timer-urgent');
+                } else {
+                    timerCircle.classList.remove('timer-urgent');
+                }
+                
+                const color = (timeLeft <= 3 || timeExpired) ? '#ef4444' : '#10b981';
+                timerCircle.style.background = `conic-gradient(${color} ${percentage}deg, #e5e7eb ${percentage}deg)`;
+            }
+        }
+
+        function handleTimeUp() {
+            timeExpired = true;
+            updateTimerDisplay();
+            
+            // Show timeout message but keep question available
+            const timerText = document.getElementById('timerText');
+            if (timerText) {
+                timerText.textContent = '0';
+                timerText.parentElement.style.background = 'conic-gradient(#ef4444 0deg, #e5e7eb 0deg)';
+            }
+            
+            // Update points display to show 30 points
+            const currentPoints = document.getElementById('currentPoints');
+            if (currentPoints) {
+                currentPoints.textContent = '30';
+                currentPoints.parentElement.innerHTML = '<div class="text-lg font-semibold text-red-600">Tempo esgotado! Responda para ganhar: <span id="currentPoints">30</span> pontos</div>';
+            }
+        }
+
+        function calculatePoints() {
+            // Points based on time left: 30 (minimum) to 100 (maximum)
+            if (timeExpired) return 30;
+            return Math.max(30, Math.round(30 + (timeLeft / maxTime) * 70));
+        }
+
+        // Countdown before starting timer
+        function showCountdown(callback) {
+            const overlay = document.createElement('div');
+            overlay.className = 'countdown-overlay';
+            
+            const countdownNumber = document.createElement('div');
+            countdownNumber.className = 'countdown-number';
+            overlay.appendChild(countdownNumber);
+            document.body.appendChild(overlay);
+            
+            let count = 3;
+            countdownNumber.textContent = count;
+            
+            const countdownInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownNumber.textContent = count;
+                    countdownNumber.style.animation = 'none';
+                    setTimeout(() => {
+                        countdownNumber.style.animation = 'countdownPulse 1s ease-in-out';
+                    }, 10);
+                } else {
+                    countdownNumber.textContent = 'GO!';
+                    countdownNumber.style.color = '#10b981';
+                    setTimeout(() => {
+                        document.body.removeChild(overlay);
+                        callback();
+                    }, 1000);
+                    clearInterval(countdownInterval);
+                }
+            }, 1000);
+        }
+
+        // Questions management functions
+        function loadCustomQuestions() {
+            const savedQuestions = localStorage.getItem('customQuestions');
+            if (savedQuestions) {
+                try {
+                    questions = JSON.parse(savedQuestions);
+                    console.log('Perguntas customizadas carregadas:', questions.length);
+                    return true;
+                } catch (e) {
+                    console.error('Erro ao carregar perguntas customizadas:', e);
+                    questions = [...defaultQuestions];
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        function saveCustomQuestions() {
+            localStorage.setItem('customQuestions', JSON.stringify(questions));
+        }
+
+        function parseMixedQuestions(text) {
+            const allQuestions = [];
+            
+            // Split by double newlines to separate potential multiple choice questions
+            const sections = text.trim().split('\n\n');
+            
+            for (let section of sections) {
+                section = section.trim();
+                if (!section) continue;
+                
+                const lines = section.split('\n').map(line => line.trim()).filter(line => line);
+                if (lines.length === 0) continue;
+                
+                // Check if this is a multiple choice question
+                const hasOptions = lines.some(line => /^[A-F]\)\s*.+$/.test(line));
+                const hasAnswer = lines.some(line => /^Resposta:\s*[A-F]$/i.test(line));
+                
+                if (hasOptions && hasAnswer && lines.length >= 4) {
+                    // Parse as multiple choice
+                    const questionText = lines[0];
+                    const options = [];
+                    let correctAnswer = null;
+                    
+                    for (let i = 1; i < lines.length; i++) {
+                        const line = lines[i];
+                        
+                        // Check if it's an option
+                        const optionMatch = line.match(/^([A-F])\)\s*(.+)$/);
+                        if (optionMatch) {
+                            options.push({
+                                letter: optionMatch[1],
+                                text: optionMatch[2]
+                            });
+                        }
+                        
+                        // Check if it's the answer line
+                        const answerMatch = line.match(/^Resposta:\s*([A-F])$/i);
+                        if (answerMatch) {
+                            correctAnswer = answerMatch[1].toUpperCase();
+                        }
+                    }
+                    
+                    if (questionText && options.length >= 2 && options.length <= 6 && correctAnswer) {
+                        const hasCorrectOption = options.some(opt => opt.letter.toUpperCase() === correctAnswer);
+                        if (hasCorrectOption) {
+                            allQuestions.push({
+                                question: questionText,
+                                options: options,
+                                correctAnswer: correctAnswer,
+                                points: 100,
+                                type: 'multiple'
+                            });
+                        }
+                    }
+                } else {
+                    // Parse each line as potential true/false question
+                    for (let line of lines) {
+                        line = line.trim();
+                        if (!line) continue;
+                        
+                        // Find the last occurrence of 'true' or 'false'
+                        const trueIndex = line.lastIndexOf('true');
+                        const falseIndex = line.lastIndexOf('false');
+                        
+                        let answerIndex = -1;
+                        let answer = null;
+                        
+                        if (trueIndex > falseIndex) {
+                            answerIndex = trueIndex;
+                            answer = true;
+                        } else if (falseIndex > trueIndex) {
+                            answerIndex = falseIndex;
+                            answer = false;
+                        }
+                        
+                        if (answerIndex !== -1 && answer !== null) {
+                            const questionText = line.substring(0, answerIndex).trim();
+                            if (questionText) {
+                                allQuestions.push({
+                                    question: questionText,
+                                    answer: answer,
+                                    points: 100,
+                                    type: 'classic'
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return allQuestions;
+        }
+
+        function updateMixedQuestionCounter() {
+            const textarea = document.getElementById('questionsTextarea');
+            const totalCount = document.getElementById('totalQuestionCount');
+            const classicCount = document.getElementById('classicCount');
+            const multipleCount = document.getElementById('multipleCount');
+            const questionStatus = document.getElementById('questionStatus');
+            
+            if (!textarea || !totalCount || !classicCount || !multipleCount || !questionStatus) return;
+            
+            const text = textarea.value;
+            const parsedQuestions = parseMixedQuestions(text);
+            
+            const classicQuestions = parsedQuestions.filter(q => q.type === 'classic');
+            const multipleQuestions = parsedQuestions.filter(q => q.type === 'multiple');
+            
+            totalCount.textContent = parsedQuestions.length;
+            classicCount.textContent = classicQuestions.length;
+            multipleCount.textContent = multipleQuestions.length;
+            
+            if (parsedQuestions.length === 0) {
+                questionStatus.textContent = '';
+                questionStatus.className = '';
+            } else {
+                questionStatus.textContent = '✅ Formato válido';
+                questionStatus.className = 'text-green-600';
+            }
+        }
 
         // Data persistence functions
         function saveGameState() {
@@ -249,14 +712,14 @@
                 playerScores = gameState.playerScores || {};
                 usedQuestions = new Set(gameState.usedQuestions || []);
                 questionAnswers = gameState.questionAnswers || {};
-
+                
                 // Initialize missing players
                 players.forEach(player => {
                     if (!playerScores[player]) {
                         playerScores[player] = 0;
                     }
                 });
-
+                
                 console.log('Estado do jogo carregado:', gameState);
                 return true;
             }
@@ -268,7 +731,7 @@
             playerScores = {};
             usedQuestions = new Set();
             questionAnswers = {};
-
+            
             // Initialize player scores
             players.forEach(player => {
                 playerScores[player] = 0;
@@ -277,13 +740,28 @@
 
         // Initialize game
         function initGame() {
+            // Load custom questions first
+            loadCustomQuestions();
+            
+            // Load timer setting
+            const savedTimer = localStorage.getItem('quizTimerSetting');
+            if (savedTimer) {
+                maxTime = parseInt(savedTimer);
+                // Update active timer option in modal
+                setTimeout(() => {
+                    document.querySelectorAll('.timer-option').forEach(opt => opt.classList.remove('active'));
+                    const targetOption = document.querySelector(`[data-time="${maxTime}"]`);
+                    if (targetOption) targetOption.classList.add('active');
+                }, 100);
+            }
+            
             // Try to load saved state first
             const hasLoadedState = loadGameState();
-
+            
             createQuizCards();
             populatePlayerSelect();
             setupEventListeners();
-
+            
             // If we loaded a saved state, update the cards to show answered questions
             if (hasLoadedState) {
                 updateCardsFromSavedState();
@@ -294,17 +772,21 @@
             usedQuestions.forEach(cardIndex => {
                 const card = quizGrid.children[cardIndex];
                 const answerData = questionAnswers[cardIndex];
-
+                
                 if (card && answerData) {
                     const firstName = answerData.player.split(' ')[0];
                     const isCorrect = answerData.correct;
-
+                    const points = answerData.points || (isCorrect ? 100 : 0);
+                    
                     card.innerHTML = `
                         <div class="text-center">
                             <h3 class="text-lg font-bold text-gray-800 mb-2">Pergunta ${cardIndex + 1}</h3>
-                            <div class="text-8xl mb-4 ${isCorrect ? 'text-green-500' : 'text-red-500'}">${isCorrect ? '✓' : '✗'}</div>
-                            <div class="text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'} font-semibold">
+                            <div class="text-6xl mb-2 ${isCorrect ? 'text-green-500' : 'text-red-500'}">${isCorrect ? '✓' : '✗'}</div>
+                            <div class="text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'} font-semibold mb-1">
                                 ${firstName}
+                            </div>
+                            <div class="text-xs text-gray-500">
+                                ${points} pts${answerData.timeUp ? ' (tempo)' : ''}
                             </div>
                         </div>
                     `;
@@ -317,7 +799,9 @@
         // Create quiz cards
         function createQuizCards() {
             quizGrid.innerHTML = '';
-            for (let i = 0; i < 20; i++) {
+            const totalQuestions = questions.length;
+            
+            for (let i = 0; i < totalQuestions; i++) {
                 const card = document.createElement('div');
                 card.className = 'bg-white rounded-xl shadow-lg p-6 cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl';
                 card.innerHTML = `
@@ -358,6 +842,35 @@
             quizModal.classList.add('flex');
         }
 
+        // Display question based on type
+        function displayQuestion() {
+            const question = questions[currentQuestionIndex % questions.length];
+            questionText.textContent = `${currentQuestionIndex + 1}. ${question.question}`;
+            
+            if (question.type === 'multiple') {
+                // Show multiple choice buttons
+                document.getElementById('trueFalseButtons').classList.add('hidden');
+                document.getElementById('multipleChoiceButtons').classList.remove('hidden');
+                
+                const buttonsContainer = document.getElementById('multipleChoiceButtons');
+                buttonsContainer.innerHTML = '';
+                
+                const colors = ['bg-blue-500 hover:bg-blue-600', 'bg-green-500 hover:bg-green-600', 'bg-yellow-500 hover:bg-yellow-600', 'bg-red-500 hover:bg-red-600', 'bg-purple-500 hover:bg-purple-600', 'bg-pink-500 hover:bg-pink-600'];
+                
+                question.options.forEach((option, index) => {
+                    const button = document.createElement('button');
+                    button.className = `w-full ${colors[index % colors.length]} text-white py-3 rounded-lg font-semibold text-lg`;
+                    button.textContent = `${option.letter}) ${option.text}`;
+                    button.addEventListener('click', () => answerMultipleChoice(option.letter));
+                    buttonsContainer.appendChild(button);
+                });
+            } else {
+                // Show true/false buttons
+                document.getElementById('multipleChoiceButtons').classList.add('hidden');
+                document.getElementById('trueFalseButtons').classList.remove('hidden');
+            }
+        }
+
         // Setup event listeners
         function setupEventListeners() {
             // Register player button
@@ -367,12 +880,16 @@
                     alert('Por favor, selecione um jogador!');
                     return;
                 }
-
+                
                 playerSelection.classList.add('hidden');
                 questionSection.classList.remove('hidden');
-
-                const question = questions[currentQuestionIndex % questions.length];
-                questionText.textContent = `${currentQuestionIndex + 1}. ${question.question}`;
+                
+                displayQuestion();
+                
+                // Show countdown then start timer
+                showCountdown(() => {
+                    startTimer();
+                });
             });
 
             // True/False buttons
@@ -380,7 +897,10 @@
             document.getElementById('falseBtn').addEventListener('click', () => answerQuestion(false));
 
             // Close modal
-            document.getElementById('closeModal').addEventListener('click', closeQuizModal);
+            document.getElementById('closeModal').addEventListener('click', () => {
+                stopTimer();
+                closeQuizModal();
+            });
 
             // Finish game
             document.getElementById('finishGame').addEventListener('click', showRanking);
@@ -406,10 +926,10 @@
                     document.getElementById('resetModal').classList.add('hidden');
                     document.getElementById('resetModal').classList.remove('flex');
                     document.getElementById('resetPassword').value = '';
-
+                    
                     // Recreate the cards to reset visual state
                     createQuizCards();
-
+                    
                     alert('🔄 Quiz resetado com sucesso!');
                 } else {
                     alert('❌ Senha incorreta!');
@@ -431,141 +951,243 @@
                     document.getElementById('confirmReset').click();
                 }
             });
+
+            // Timer settings button
+            document.getElementById('timerSettingsBtn').addEventListener('click', () => {
+                document.getElementById('timerSettingsModal').classList.remove('hidden');
+                document.getElementById('timerSettingsModal').classList.add('flex');
+            });
+
+            // Timer option selection
+            document.querySelectorAll('.timer-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    document.querySelectorAll('.timer-option').forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                });
+            });
+
+            // Save timer settings
+            document.getElementById('saveTimerSettings').addEventListener('click', () => {
+                const activeOption = document.querySelector('.timer-option.active');
+                if (activeOption) {
+                    maxTime = parseInt(activeOption.dataset.time);
+                    localStorage.setItem('quizTimerSetting', maxTime);
+                    alert(`⏱️ Tempo configurado para ${maxTime} segundos!`);
+                }
+                document.getElementById('timerSettingsModal').classList.add('hidden');
+                document.getElementById('timerSettingsModal').classList.remove('flex');
+            });
+
+            // Cancel timer settings
+            document.getElementById('cancelTimerSettings').addEventListener('click', () => {
+                document.getElementById('timerSettingsModal').classList.add('hidden');
+                document.getElementById('timerSettingsModal').classList.remove('flex');
+            });
+
+            // Questions manager button
+            document.getElementById('questionsManagerBtn').addEventListener('click', () => {
+                document.getElementById('questionsManagerModal').classList.remove('hidden');
+                document.getElementById('questionsManagerModal').classList.add('flex');
+                
+                // Load current questions in mixed format
+                const currentQuestionsText = questions.map(q => {
+                    if (q.type === 'multiple') {
+                        let text = q.question + '\n';
+                        q.options.forEach(opt => {
+                            text += `${opt.letter}) ${opt.text}\n`;
+                        });
+                        text += `Resposta: ${q.correctAnswer}`;
+                        return text;
+                    } else {
+                        return `${q.question} ${q.answer ? 'true' : 'false'}`;
+                    }
+                }).join('\n\n');
+                
+                document.getElementById('questionsTextarea').value = currentQuestionsText;
+                updateMixedQuestionCounter();
+            });
+
+            // Questions textarea input
+            document.getElementById('questionsTextarea').addEventListener('input', updateMixedQuestionCounter);
+
+            // Load default questions
+            document.getElementById('loadDefaultQuestions').addEventListener('click', () => {
+                const defaultQuestionsText = defaultQuestions.map(q => 
+                    `${q.question} ${q.answer ? 'true' : 'false'}`
+                ).join('\n');
+                document.getElementById('questionsTextarea').value = defaultQuestionsText;
+                updateMixedQuestionCounter();
+            });
+
+            // Clear questions
+            document.getElementById('clearQuestions').addEventListener('click', () => {
+                document.getElementById('questionsTextarea').value = '';
+                updateMixedQuestionCounter();
+            });
+
+            // Save questions
+            document.getElementById('saveQuestions').addEventListener('click', () => {
+                const textarea = document.getElementById('questionsTextarea');
+                const text = textarea.value;
+                const parsedQuestions = parseMixedQuestions(text);
+                
+                if (parsedQuestions.length === 0) {
+                    alert('❌ Nenhuma pergunta válida encontrada!');
+                    return;
+                }
+                
+                // Count question types
+                const classicCount = parsedQuestions.filter(q => q.type === 'classic').length;
+                const multipleCount = parsedQuestions.filter(q => q.type === 'multiple').length;
+                
+                // Update questions and save
+                questions = parsedQuestions;
+                saveCustomQuestions();
+                
+                // Clear game state since questions changed
+                clearGameState();
+                createQuizCards();
+                
+                document.getElementById('questionsManagerModal').classList.add('hidden');
+                document.getElementById('questionsManagerModal').classList.remove('flex');
+                
+                let typeText = '';
+                if (classicCount > 0 && multipleCount > 0) {
+                    typeText = `(${classicCount} V/F + ${multipleCount} Múltipla Escolha)`;
+                } else if (classicCount > 0) {
+                    typeText = 'Verdadeiro/Falso';
+                } else {
+                    typeText = 'Múltipla Escolha';
+                }
+                
+                alert(`✅ ${parsedQuestions.length} perguntas ${typeText} salvas com sucesso!\n\nO quiz foi resetado para usar as novas perguntas.`);
+            });
+
+            // Cancel questions manager
+            document.getElementById('cancelQuestionsManager').addEventListener('click', () => {
+                document.getElementById('questionsManagerModal').classList.add('hidden');
+                document.getElementById('questionsManagerModal').classList.remove('flex');
+            });
+
+            // Save ranking to JSON
+            document.getElementById('saveRanking').addEventListener('click', () => {
+                const rankingData = generateRankingData();
+                downloadRankingJSON(rankingData);
+            });
+
+            // Load ranking from JSON
+            document.getElementById('loadRanking').addEventListener('click', () => {
+                document.getElementById('jsonFileInput').click();
+            });
+
+            // Handle file input change
+            document.getElementById('jsonFileInput').addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    loadRankingFromJSON(file);
+                }
+                // Reset file input
+                event.target.value = '';
+            });
         }
 
         // Show result animation
-        function showResultAnimation(isCorrect) {
+        function showResultAnimation(isCorrect, customText = null) {
             const animation = document.createElement('div');
             animation.className = `result-animation ${isCorrect ? 'correct' : 'incorrect'}`;
-            animation.textContent = isCorrect ? '✓' : '✗';
+            animation.textContent = customText || (isCorrect ? '✓' : '✗');
             document.body.appendChild(animation);
-
+            
             setTimeout(() => {
-                document.body.removeChild(animation);
+                if (document.body.contains(animation)) {
+                    document.body.removeChild(animation);
+                }
             }, 2000);
         }
 
-//CODIGO ORIGINAL            
+        // Answer question (True/False)
+        function answerQuestion(userAnswer) {
+            // Stop the timer first
+            stopTimer();
+            
+            const question = questions[currentQuestionIndex % questions.length];
+            const isCorrect = userAnswer === question.answer;
+            
+            // Calculate points based on remaining time
+            const earnedPoints = isCorrect ? calculatePoints() : 0;
+            
+            // Update scores immediately
+            if (isCorrect) {
+                playerScores[selectedPlayer] += earnedPoints;
+                console.log(`${selectedPlayer} ganhou ${earnedPoints} pontos! Total: ${playerScores[selectedPlayer]}`);
+            }
+            
+            // Mark question as used and store answer data
+            usedQuestions.add(currentQuestionIndex);
+            questionAnswers[currentQuestionIndex] = {
+                player: selectedPlayer,
+                correct: isCorrect,
+                points: earnedPoints,
+                timeLeft: timeLeft
+            };
+            
+            // Show animation
+            showResultAnimation(isCorrect);
+            
+            // Close modal immediately to show animation
+            closeQuizModal();
+            
+            // Save game state first
+            saveGameState();
+            
+            // Refresh page after animation to show updated card
+            setTimeout(() => {
+                location.reload();
+            }, 2500);
+        }
 
-
-        // // Answer question
-        // function answerQuestion(userAnswer) {
-        //     const question = questions[currentQuestionIndex % questions.length];
-        //     const isCorrect = userAnswer === question.answer;
-
-        //     // Update scores immediately
-        //     if (isCorrect) {
-        //         playerScores[selectedPlayer] += question.points;
-        //         console.log(`${selectedPlayer} ganhou ${question.points} pontos! Total: ${playerScores[selectedPlayer]}`);
-        //     }
-
-        //     // Mark question as used and store answer data
-        //     usedQuestions.add(currentQuestionIndex);
-        //     questionAnswers[currentQuestionIndex] = {
-        //         player: selectedPlayer,
-        //         correct: isCorrect
-        //     };
-
-        //     // Show animation
-        //     showResultAnimation(isCorrect);
-        //     // Close modal immediately to show animation
-        //     closeQuizModal();
-
-        //     // Messages removed - only animation shows result
-
-        //     // Update entire card content
-        //     setTimeout(() => {
-        //         const cardIndex = currentQuestionIndex;
-        //         const card = quizGrid.children[cardIndex];
-        //         const firstName = selectedPlayer.split(' ')[0]; // Pega apenas o primeiro nome
-
-        //         if (card) {
-        //             card.innerHTML = `
-        //                 <div class="text-center">
-        //                     <h3 class="text-lg font-bold text-gray-800 mb-2">Pergunta ${cardIndex + 1}</h3>
-        //                     <div class="text-8xl mb-4 ${isCorrect ? 'text-green-500' : 'text-red-500'}">${isCorrect ? '✓' : '✗'}</div>
-        //                     <div class="text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'} font-semibold">
-        //                         ${firstName}
-        //                     </div>
-        //                 </div>
-        //             `;
-        //             // Remove click functionality
-        //             card.style.cursor = 'default';
-        //             card.classList.remove('hover:scale-105');
-        //         }
-
-        //         // Save game state after updating the card
-        //         saveGameState();
-        //     }, 100);
-        // }
-
-//CODIGO GPT
-
-function answerQuestion(userAnswer) {
-    const question = questions[currentQuestionIndex % questions.length];
-    const isCorrect = userAnswer === question.answer;
-
-    // garante que existe um jogador selecionado
-    if (!selectedPlayer) {
-        alert('Por favor selecione um jogador antes de responder!');
-        return;
-    }
-
-    // atualiza pontuação (garantindo valor inicial)
-    playerScores[selectedPlayer] = (playerScores[selectedPlayer] || 0) + (isCorrect ? (question.points || 0) : 0);
-
-    // marca pergunta usada e armazena quem respondeu e se acertou
-    usedQuestions.add(currentQuestionIndex);
-    questionAnswers[currentQuestionIndex] = {
-        player: selectedPlayer,
-        correct: isCorrect
-    };
-
-    // animação de resultado (visível)
-    showResultAnimation(isCorrect);
-
-    // --- Atualiza o card IMEDIATAMENTE antes de resetar o modal ---
-    const cardIndex = currentQuestionIndex;
-    const card = quizGrid.children[cardIndex];
-    const firstName = (selectedPlayer.split && selectedPlayer.split(' ')[0]) || selectedPlayer;
-
-    if (card) {
-        // cria um clone do card para remover listeners antigos
-        const newCard = card.cloneNode(true);
-
-        newCard.innerHTML = `
-            <div class="text-center">
-                <h3 class="text-lg font-bold text-gray-800 mb-2">Pergunta ${cardIndex + 1}</h3>
-                <div class="text-8xl mb-4 ${isCorrect ? 'text-green-500' : 'text-red-500'}">${isCorrect ? '✓' : '✗'}</div>
-                <div class="text-sm ${isCorrect ? 'text-green-600' : 'text-red-600'} font-semibold">
-                    ${firstName}
-                </div>
-            </div>
-        `;
-
-        // deixa claro visualmente que não é clicável e remove hover
-        newCard.style.cursor = 'default';
-        newCard.classList.remove('hover:scale-105', 'hover:shadow-xl');
-        newCard.style.pointerEvents = 'none'; // evita novos cliques
-
-        quizGrid.replaceChild(newCard, card);
-    }
-
-    // salva o estado atualizado
-    saveGameState();
-
-    // --- Fecha o modal e reinicia a tela para o estado inicial (selecionar jogador) ---
-    quizModal.classList.add('hidden');
-    quizModal.classList.remove('flex');
-
-    // reset dos controles do modal para que, ao abrir outra pergunta, volte ao começo (seleção do jogador)
-    playerSelect.value = '';
-    selectedPlayer = '';
-    playerSelection.classList.remove('hidden');
-    questionSection.classList.add('hidden');
-}
-
-
+        // Answer multiple choice question
+        function answerMultipleChoice(selectedLetter) {
+            // Stop the timer first
+            stopTimer();
+            
+            const question = questions[currentQuestionIndex % questions.length];
+            const isCorrect = selectedLetter.toUpperCase() === question.correctAnswer.toUpperCase();
+            
+            // Calculate points based on remaining time
+            const earnedPoints = isCorrect ? calculatePoints() : 0;
+            
+            // Update scores immediately
+            if (isCorrect) {
+                playerScores[selectedPlayer] += earnedPoints;
+                console.log(`${selectedPlayer} ganhou ${earnedPoints} pontos! Total: ${playerScores[selectedPlayer]}`);
+            }
+            
+            // Mark question as used and store answer data
+            usedQuestions.add(currentQuestionIndex);
+            questionAnswers[currentQuestionIndex] = {
+                player: selectedPlayer,
+                correct: isCorrect,
+                points: earnedPoints,
+                timeLeft: timeLeft,
+                selectedAnswer: selectedLetter,
+                correctAnswer: question.correctAnswer
+            };
+            
+            // Show animation
+            showResultAnimation(isCorrect);
+            
+            // Close modal immediately to show animation
+            closeQuizModal();
+            
+            // Save game state first
+            saveGameState();
+            
+            // Refresh page after animation to show updated card
+            setTimeout(() => {
+                location.reload();
+            }, 2500);
+        }
 
         // Close quiz modal
         function closeQuizModal() {
@@ -575,29 +1197,300 @@ function answerQuestion(userAnswer) {
             selectedPlayer = '';
         }
 
+        // Generate ranking data for export
+        function generateRankingData() {
+            const playerStats = {};
+            
+            // Start with imported data if available
+            if (importedRankingData && importedRankingData.players) {
+                Object.entries(importedRankingData.players).forEach(([player, data]) => {
+                    playerStats[player] = {
+                        totalQuestions: data.totalQuestions || 0,
+                        correctAnswers: data.correctAnswers || 0,
+                        incorrectAnswers: data.incorrectAnswers || 0,
+                        totalPoints: data.totalPoints || 0,
+                        sessions: [...(data.sessions || [])]
+                    };
+                });
+            }
+            
+            // Calculate current session statistics
+            const currentSessionStats = {};
+            Object.values(questionAnswers).forEach(answer => {
+                const player = answer.player;
+                if (!currentSessionStats[player]) {
+                    currentSessionStats[player] = {
+                        totalQuestions: 0,
+                        correctAnswers: 0,
+                        incorrectAnswers: 0,
+                        totalPoints: 0
+                    };
+                }
+                
+                currentSessionStats[player].totalQuestions++;
+                if (answer.correct) {
+                    currentSessionStats[player].correctAnswers++;
+                    currentSessionStats[player].totalPoints += answer.points || 0;
+                } else {
+                    currentSessionStats[player].incorrectAnswers++;
+                }
+            });
+
+            // Merge current session with existing data
+            Object.entries(currentSessionStats).forEach(([player, currentStats]) => {
+                if (!playerStats[player]) {
+                    playerStats[player] = {
+                        totalQuestions: 0,
+                        correctAnswers: 0,
+                        incorrectAnswers: 0,
+                        totalPoints: 0,
+                        sessions: []
+                    };
+                }
+                
+                // Add current session stats
+                playerStats[player].totalQuestions += currentStats.totalQuestions;
+                playerStats[player].correctAnswers += currentStats.correctAnswers;
+                playerStats[player].incorrectAnswers += currentStats.incorrectAnswers;
+                playerStats[player].totalPoints = playerScores[player] || 0; // Use current total from scores
+                
+                // Add current session info
+                if (currentStats.totalQuestions > 0) {
+                    playerStats[player].sessions.push({
+                        date: new Date().toISOString(),
+                        questions: currentStats.totalQuestions,
+                        correct: currentStats.correctAnswers,
+                        incorrect: currentStats.incorrectAnswers,
+                        points: currentStats.totalPoints
+                    });
+                }
+            });
+
+            // Include players who only have imported data (didn't play current session)
+            Object.keys(playerScores).forEach(player => {
+                if (!playerStats[player] && playerScores[player] > 0) {
+                    playerStats[player] = {
+                        totalQuestions: 0,
+                        correctAnswers: 0,
+                        incorrectAnswers: 0,
+                        totalPoints: playerScores[player],
+                        sessions: []
+                    };
+                }
+            });
+
+            return {
+                exportDate: new Date().toISOString(),
+                totalPlayers: Object.keys(playerStats).length,
+                totalQuestions: Object.keys(questionAnswers).length,
+                currentSessionQuestions: Object.keys(questionAnswers).length,
+                importedFrom: importedRankingData ? importedRankingData.exportDate : null,
+                players: playerStats,
+                metadata: {
+                    version: "1.1",
+                    quizType: "Interactive Quiz",
+                    exportedBy: "Quiz System",
+                    hasImportedData: !!importedRankingData
+                }
+            };
+        }
+
+        // Download ranking as JSON
+        function downloadRankingJSON(data) {
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ranking_quiz_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('📁 Ranking salvo com sucesso!\nArquivo baixado para sua pasta de Downloads.');
+        }
+
+        // Store imported ranking data for display
+        let importedRankingData = null;
+
+        // Load and merge ranking from JSON
+        function loadRankingFromJSON(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    if (!importedData.players || typeof importedData.players !== 'object') {
+                        throw new Error('Formato de arquivo inválido');
+                    }
+                    
+                    // Store imported data for display
+                    importedRankingData = importedData;
+                    
+                    // Merge with existing data
+                    let mergedPlayers = 0;
+                    let newPlayers = 0;
+                    
+                    Object.entries(importedData.players).forEach(([playerName, playerData]) => {
+                        if (players.includes(playerName)) {
+                            // Player exists - accumulate stats
+                            if (playerScores[playerName]) {
+                                playerScores[playerName] += playerData.totalPoints || 0;
+                                mergedPlayers++;
+                            } else {
+                                playerScores[playerName] = playerData.totalPoints || 0;
+                                newPlayers++;
+                            }
+                        } else {
+                            // New player - add to system
+                            players.push(playerName);
+                            playerScores[playerName] = playerData.totalPoints || 0;
+                            newPlayers++;
+                        }
+                    });
+                    
+                    // Save updated state
+                    saveGameState();
+                    
+                    // Update player select dropdown
+                    populatePlayerSelect();
+                    
+                    // Refresh ranking display with imported data
+                    showRanking();
+                    
+                    let message = '🏆 Ranking carregado e acumulado com sucesso!\n\n';
+                    message += `📊 Estatísticas da importação:\n`;
+                    message += `• ${mergedPlayers} jogador(es) existente(s) - pontos acumulados\n`;
+                    message += `• ${newPlayers} jogador(es) novo(s) adicionado(s)\n`;
+                    message += `• Total de jogadores: ${Object.keys(playerScores).length}`;
+                    
+                    if (importedData.exportDate) {
+                        const exportDate = new Date(importedData.exportDate).toLocaleDateString('pt-BR');
+                        message += `\n• Data do arquivo: ${exportDate}`;
+                    }
+                    
+                    alert(message);
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar ranking:', error);
+                    alert('❌ Erro ao carregar arquivo!\n\nVerifique se o arquivo é um JSON válido exportado pelo sistema de quiz.');
+                }
+            };
+            
+            reader.onerror = function() {
+                alert('❌ Erro ao ler o arquivo!\n\nTente novamente com um arquivo válido.');
+            };
+            
+            reader.readAsText(file);
+        }
+
         // Show ranking
         function showRanking() {
             console.log('Pontuações atuais:', playerScores); // Debug
+            console.log('Respostas das perguntas:', questionAnswers); // Debug
+            console.log('Dados importados:', importedRankingData); // Debug
+            
+            // Calculate comprehensive player statistics
+            const playerStats = {};
+            
+            // Start with imported data if available
+            if (importedRankingData && importedRankingData.players) {
+                Object.entries(importedRankingData.players).forEach(([player, data]) => {
+                    playerStats[player] = {
+                        importedQuestions: data.totalQuestions || 0,
+                        importedCorrect: data.correctAnswers || 0,
+                        importedIncorrect: data.incorrectAnswers || 0,
+                        importedPoints: data.totalPoints || 0,
+                        currentSessionQuestions: 0,
+                        currentSessionCorrect: 0,
+                        currentSessionIncorrect: 0,
+                        currentSessionPoints: 0,
+                        hasImportedData: true
+                    };
+                });
+            }
+            
+            // Add current session data
+            Object.values(questionAnswers).forEach(answer => {
+                const player = answer.player;
+                if (!playerStats[player]) {
+                    playerStats[player] = {
+                        importedQuestions: 0,
+                        importedCorrect: 0,
+                        importedIncorrect: 0,
+                        importedPoints: 0,
+                        currentSessionQuestions: 0,
+                        currentSessionCorrect: 0,
+                        currentSessionIncorrect: 0,
+                        currentSessionPoints: 0,
+                        hasImportedData: false
+                    };
+                }
+                
+                playerStats[player].currentSessionQuestions++;
+                if (answer.correct) {
+                    playerStats[player].currentSessionCorrect++;
+                    playerStats[player].currentSessionPoints += answer.points || 0;
+                } else {
+                    playerStats[player].currentSessionIncorrect++;
+                }
+            });
 
-            const sortedPlayers = Object.entries(playerScores)
-                .sort(([, a], [, b]) => b - a);
+            // Calculate totals combining imported and current session data
+            Object.keys(playerStats).forEach(player => {
+                const stats = playerStats[player];
+                
+                // Calculate totals
+                stats.totalQuestions = stats.importedQuestions + stats.currentSessionQuestions;
+                stats.correctAnswers = stats.importedCorrect + stats.currentSessionCorrect;
+                stats.incorrectAnswers = stats.importedIncorrect + stats.currentSessionIncorrect;
+                stats.totalPoints = playerScores[player] || 0; // Use current accumulated score
+            });
 
             const rankingList = document.getElementById('rankingList');
             rankingList.innerHTML = '';
 
-            // Filter players with points for podium positions
-            const playersWithPoints = sortedPlayers.filter(([, score]) => score > 0);
-
-            console.log('Jogadores com pontos:', playersWithPoints); // Debug
-
-            if (playersWithPoints.length === 0) {
-                rankingList.innerHTML = '<p class="text-center text-gray-600 text-lg">🎮 Nenhum jogador pontuou ainda!</p><p class="text-center text-gray-500 mt-2">Responda algumas perguntas para ver o ranking aqui.</p>';
+            // Get all players with points (either imported or current)
+            const playersWithData = Object.entries(playerStats).filter(([player, stats]) => 
+                stats.totalPoints > 0 || stats.totalQuestions > 0
+            );
+            
+            // Sort by total points (descending), then by total questions (descending)
+            playersWithData.sort(([,a], [,b]) => {
+                if (b.totalPoints !== a.totalPoints) {
+                    return b.totalPoints - a.totalPoints;
+                }
+                return b.totalQuestions - a.totalQuestions;
+            });
+            
+            console.log('Jogadores com dados:', playersWithData); // Debug
+            
+            if (playersWithData.length === 0) {
+                rankingList.innerHTML = '<p class="text-center text-gray-600 text-lg">🎮 Nenhum jogador com dados!</p><p class="text-center text-gray-500 mt-2">Responda algumas perguntas ou carregue um ranking para ver os dados aqui.</p>';
             } else {
-                playersWithPoints.forEach(([player, score], index) => {
+                // Add header if there's imported data
+                if (importedRankingData) {
+                    const headerDiv = document.createElement('div');
+                    headerDiv.className = 'bg-blue-50 border-2 border-blue-200 p-3 rounded-lg mb-4';
+                    const importDate = new Date(importedRankingData.exportDate).toLocaleDateString('pt-BR');
+                    headerDiv.innerHTML = `
+                        <div class="text-center">
+                            <div class="text-blue-800 font-semibold mb-1">📊 Ranking Acumulado</div>
+                            <div class="text-sm text-blue-600">
+                                Dados importados de: ${importDate} + Sessão atual
+                            </div>
+                        </div>
+                    `;
+                    rankingList.appendChild(headerDiv);
+                }
+
+                playersWithData.forEach(([player, stats], index) => {
                     const position = index + 1;
                     let medal = '';
                     let bgColor = 'bg-gray-50';
-
+                    
                     if (position === 1) {
                         medal = '🥇';
                         bgColor = 'bg-yellow-50 border-2 border-yellow-200';
@@ -612,13 +1505,54 @@ function answerQuestion(userAnswer) {
                     }
 
                     const rankItem = document.createElement('div');
-                    rankItem.className = `flex justify-between items-center ${bgColor} p-4 rounded-lg mb-2`;
+                    rankItem.className = `${bgColor} p-4 rounded-lg mb-2`;
+                    
+                    let detailsHtml = '';
+                    if (stats.hasImportedData && stats.currentSessionQuestions > 0) {
+                        // Player has both imported and current data
+                        detailsHtml = `
+                            <div class="flex gap-4 flex-wrap">
+                                <span class="text-blue-600">📊 Total: ${stats.totalQuestions} pergunta${stats.totalQuestions !== 1 ? 's' : ''}</span>
+                                <span class="text-green-600">✅ ${stats.correctAnswers} acerto${stats.correctAnswers !== 1 ? 's' : ''}</span>
+                                <span class="text-red-600">❌ ${stats.incorrectAnswers} erro${stats.incorrectAnswers !== 1 ? 's' : ''}</span>
+                            </div>
+                            <div class="flex gap-4 mt-1 text-xs">
+                                <span class="text-purple-600">🆕 Sessão atual: ${stats.currentSessionQuestions} pergunta${stats.currentSessionQuestions !== 1 ? 's' : ''}</span>
+                                <span class="text-purple-600">+${stats.currentSessionPoints} pts</span>
+                            </div>
+                        `;
+                    } else if (stats.hasImportedData) {
+                        // Player has only imported data
+                        detailsHtml = `
+                            <div class="flex gap-4">
+                                <span class="text-blue-600">📊 ${stats.totalQuestions} pergunta${stats.totalQuestions !== 1 ? 's' : ''}</span>
+                                <span class="text-green-600">✅ ${stats.correctAnswers} acerto${stats.correctAnswers !== 1 ? 's' : ''}</span>
+                                <span class="text-red-600">❌ ${stats.incorrectAnswers} erro${stats.incorrectAnswers !== 1 ? 's' : ''}</span>
+                                <span class="text-gray-500 text-xs">(dados importados)</span>
+                            </div>
+                        `;
+                    } else {
+                        // Player has only current session data
+                        detailsHtml = `
+                            <div class="flex gap-4">
+                                <span>📊 ${stats.totalQuestions} pergunta${stats.totalQuestions !== 1 ? 's' : ''}</span>
+                                <span class="text-green-600">✅ ${stats.correctAnswers} acerto${stats.correctAnswers !== 1 ? 's' : ''}</span>
+                                <span class="text-red-600">❌ ${stats.incorrectAnswers} erro${stats.incorrectAnswers !== 1 ? 's' : ''}</span>
+                            </div>
+                        `;
+                    }
+
                     rankItem.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="text-2xl mr-3 min-w-[3rem] text-center">${medal}</span>
-                            <span class="font-semibold text-gray-800">${player}</span>
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-3 min-w-[3rem] text-center">${medal}</span>
+                                <span class="font-semibold text-gray-800">${player}</span>
+                            </div>
+                            <span class="text-xl font-bold text-blue-600">${stats.totalPoints} pts</span>
                         </div>
-                        <span class="text-xl font-bold text-blue-600">${score} pts</span>
+                        <div class="ml-14 text-sm text-gray-600">
+                            ${detailsHtml}
+                        </div>
                     `;
                     rankingList.appendChild(rankItem);
                 });
@@ -631,7 +1565,5 @@ function answerQuestion(userAnswer) {
         // Initialize the game
         initGame();
     </script>
-    <script>(function () { function c() { var b = a.contentDocument || a.contentWindow.document; if (b) { var d = b.createElement('script'); d.innerHTML = "window.__CF$cv$params={r:'9854c201a0c9f1d7',t:'MTc1ODkxMDY0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);"; b.getElementsByTagName('head')[0].appendChild(d) } } if (document.body) { var a = document.createElement('iframe'); a.height = 1; a.width = 1; a.style.position = 'absolute'; a.style.top = 0; a.style.left = 0; a.style.border = 'none'; a.style.visibility = 'hidden'; document.body.appendChild(a); if ('loading' !== document.readyState) c(); else if (window.addEventListener) document.addEventListener('DOMContentLoaded', c); else { var e = document.onreadystatechange || function () { }; document.onreadystatechange = function (b) { e(b); 'loading' !== document.readyState && (document.onreadystatechange = e, c()) } } } })();</script>
-</body>
-
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98dfdfe8625a7a2f',t:'MTc2MDM2OTM4OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
